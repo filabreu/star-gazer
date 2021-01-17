@@ -63,7 +63,14 @@ class Blockchain {
   _addBlock(block) {
     let self = this;
     return new Promise(async (resolve, reject) => {
-      await self.getChainHeight().then(async (chainHeight) => {
+      await self.validateChain().then(errorLog => {
+        if (errorLog.length > 0) {
+          // Checks for validation errors on the chain and reject with the errors
+          reject(errorLog.join('\n'));
+        } else {
+          return self.getChainHeight();
+        }
+      }).then(async (chainHeight) => {
         // Set block height
         block.height = chainHeight + 1;
 
@@ -129,8 +136,8 @@ class Blockchain {
     return new Promise(async (resolve, reject) => {
       const messageTime = parseInt(message.split(':')[1]);
       const currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
-      
-      if (currentTime - messageTime < 600 && bitcoinMessage.verify(message, address, signature)) {
+
+      if (currentTime - messageTime < 300 && bitcoinMessage.verify(message, address, signature)) {
         // Create a new Block with the star data
         const block = new BlockClass.Block(star);
         block.owner = address;
@@ -214,6 +221,7 @@ class Blockchain {
   validateChain() {
     let self = this;
     let errorLog = [];
+
     return new Promise(async (resolve, reject) => {
       self.chain.forEach(async (block) => {
         await block.validate().then((valid) => {

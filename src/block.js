@@ -47,6 +47,9 @@ class Block {
       // Recalculate the hash of the Block
       const blockHash = self.calculateHash();
 
+      // Set hash back to block
+      self.hash = currentHash;
+
       // Comparing if the hashes changed
       if (currentHash === blockHash) {
         // Returning the Block is valid
