@@ -201,7 +201,7 @@ class Blockchain {
       self.chain.forEach(async (block) => {
         if (block.owner === address) {
           await block.getBData().then((blockData) => {
-            stars.push(blockData);
+            stars.push({ star: blockData, owner: address });
           }).catch((err) => {
             reject(err);
           });
